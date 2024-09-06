@@ -1,4 +1,6 @@
 defmodule DesafioCli do
+  alias DesafioCli.State
+
   @moduledoc """
   Ponto de entrada para a CLI.
   """
@@ -8,6 +10,8 @@ defmodule DesafioCli do
   comando como lista de strings e executa a CLI.
   """
   def main(_args) do
+    State.start_link()
+
     IO.gets(">")
     |> String.trim()
     |> handle_input()
@@ -34,9 +38,24 @@ defmodule DesafioCli do
 
   defp validate_set_command(list), do: list
 
+  defp handle_validate_value(value) when is_bitstring(value), do: value
+
   defp handle_validate_value(list) do
-    [_ | t] = tl(list)
-    t |> handle_value()
+    [h | t] = tl(list)
+
+    t
+    |> handle_value()
+    |> set_value(h)
+  end
+
+  def get_value(_,key) do
+    State.current_state()
+    |> Map.get(key)
+  end
+  defp set_value(value, key) do
+    State.current_state()
+    |> Map.put(key, value)
+    |> State.update_state()
   end
 
   defp handle_value(value) do
