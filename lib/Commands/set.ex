@@ -95,5 +95,16 @@ defmodule DesafioCli.Commands.Set do
     end
   end
 
-  defp type({:string, value}, _), do: value
+  defp type({:string, value}, _), do: value |> join_strings()
+
+  defp join_strings(string_list) do
+    join_strings(string_list, "")
+  end
+
+  defp join_strings(string_list, string) when string_list |> length == 0, do: string
+
+  defp join_strings(string_list, string) do
+    [h | t] = string_list
+    join_strings(t, string <> h <> " ")
+  end
 end

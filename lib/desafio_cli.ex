@@ -16,6 +16,7 @@ defmodule DesafioCli do
 
     IO.gets(">")
     |> String.trim()
+    |> String.replace(~r/\\|\"/, "")
     |> handle_input()
     |> main()
   end
