@@ -1,5 +1,7 @@
 defmodule DesafioCli do
-  alias DesafioCli.State
+  alias Commands.Set
+  alias DesafioCli.State.State
+  alias DesafioCli.Commands.{Set, Get}
 
   @moduledoc """
   Ponto de entrada para a CLI.
@@ -20,83 +22,9 @@ defmodule DesafioCli do
 
   def handle_input(args) do
     cond do
-      args |> String.contains?("SET") -> handle_set_command(args)
+      args |> String.upcase() |> String.contains?("SET") -> Set.start_set_command(args)
+      args |> String.upcase() |> String.contains?("GET") -> Get.start_get_command(args)
       true -> IO.puts("ERR \"No command #{args}\"")
     end
   end
-
-  defp handle_set_command(args) do
-    args
-    |> String.split(" ")
-    |> validate_set_command()
-    |> handle_validate_value()
-    |> IO.puts()
-  end
-
-  defp validate_set_command(list) when length(list) < 3,
-    do: "ERR \"SET <chave> <valor> - Syntax error\""
-
-  defp validate_set_command(list), do: list
-
-  defp handle_validate_value(value) when is_bitstring(value), do: value
-
-  defp handle_validate_value(list) do
-    [h | t] = tl(list)
-
-    t
-    |> handle_value()
-    |> set_value(h)
-  end
-
-  def get_value(_,key) do
-    State.current_state()
-    |> Map.get(key)
-  end
-  defp set_value(value, key) do
-    State.current_state()
-    |> Map.put(key, value)
-    |> State.update_state()
-  end
-
-  defp handle_value(value) do
-    value |> handle_type()
-  end
-
-  defp handle_type(value) do
-    [:bool, :integer, :string]
-    |> handle_type(value)
-  end
-
-  defp handle_type(list, value) when length(list) == 0, do: value
-
-  defp handle_type(list, value) do
-    [h | t] = list
-    define_type(h, value, t)
-  end
-
-  defp define_type(type, value, t) do
-    type({type, value}, t)
-  end
-
-  defp type({:bool, value}, t) do
-    if String.to_atom(to_string(value)) |> is_boolean() do
-      value
-      |> to_string()
-      |> String.to_atom()
-    else
-      handle_type(t, value)
-    end
-  end
-
-  defp type({:integer, value}, t) do
-    try do
-      value
-      |> to_string()
-      |> String.to_integer()
-    rescue
-      _ -> handle_type(t, value)
-    end
-  end
-
-  defp type({:string, value}, _), do: value
 end

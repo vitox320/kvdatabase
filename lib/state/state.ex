@@ -1,4 +1,4 @@
-defmodule DesafioCli.State do
+defmodule DesafioCli.State.State do
   use Agent
 
   def start_link() do
